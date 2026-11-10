@@ -1,0 +1,55 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:01:10 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\C51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst
+                    -) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <reg51.h> 
+   2          
+   3          unsigned char c;
+   4          void serial_interrupt(void) interrupt 4 {
+   5   1          if(RI) {
+   6   2              RI = 0; // Clear receive interrupt flag
+   7   2              c = SBUF; // Read received character
+   8   2              SBUF = c; // Echo back the received character
+   9   2          }
+  10   1      
+  11   1          if(TI) {
+  12   2              TI = 0; // Clear transmit interrupt flag
+  13   2          }
+  14   1      }
+  15          
+  16          void init() {
+  17   1          SCON = 0x50; // Set serial mode to 8-bit UART, enable reception
+  18   1          TMOD |= 0x20; // Set Timer1 in mode 2 (8-bit auto-reload)
+  19   1          TH1 = 0xFD; // Set baud rate to 9600
+  20   1          TR1 = 1; // Start Timer1
+  21   1          ES = 1; // Enable serial interrupt
+  22   1          EA = 1; // Enable global interrupts
+  23   1      }
+  24          
+  25          void main() {
+  26   1          init();
+  27   1      
+  28   1          while(1) {
+  29   2              // Main loop can perform other tasks or enter low power mode
+  30   2          }
+  31   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     38    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

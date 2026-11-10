@@ -1,0 +1,164 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:26:56 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\C51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst
+                    -) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          
+   3          sbit BUTTON = P3^2;
+   4          sbit LED = P1^0;
+   5          
+   6          // Software time base
+   7          unsigned int ms_ticks = 0;
+   8          
+   9          // Button variables
+  10          unsigned char lastRawState = 1;
+  11          unsigned char buttonState = 1;
+  12          
+  13          unsigned int debounceTime = 0;
+  14          unsigned int pressStart = 0;
+  15          unsigned int duration = 0;
+  16          
+  17          // LED blinking variables
+  18          unsigned char blinkMode = 0;
+  19          unsigned int lastBlink = 0;
+  20          
+  21          // Timer 0 interrupt - 1 ms
+  22          void Timer0_ISR(void) interrupt 1
+  23          {
+  24   1          TH0 = 0xFC;
+  25   1          TL0 = 0x66;
+  26   1      
+  27   1          ms_ticks++;
+  28   1      }
+  29          
+  30          // Get current time safely
+  31          unsigned int get_ms(void)
+  32          {
+  33   1          unsigned int t;
+  34   1      
+  35   1          ET0 = 0;
+  36   1          t = ms_ticks;
+  37   1          ET0 = 1;
+  38   1      
+  39   1          return t;
+  40   1      }
+  41          
+  42          // Timer 0 initialization
+  43          void Timer0_Init(void)
+  44          {
+  45   1          TMOD = (TMOD & 0xF0) | 0x01;
+  46   1      
+  47   1          TH0 = 0xFC;
+  48   1          TL0 = 0x66;
+  49   1      
+  50   1          ET0 = 1;
+  51   1          EA = 1;
+  52   1          TR0 = 1;
+  53   1      }
+  54          
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:26:56 PAGE 2   
+
+  55          void main(void)
+  56          {
+  57   1          unsigned char currentState;
+  58   1          unsigned int now;
+  59   1      
+  60   1          BUTTON = 1;
+  61   1          LED = 0;
+  62   1      
+  63   1          Timer0_Init();
+  64   1      
+  65   1          while(1)
+  66   1          {
+  67   2              currentState = BUTTON;
+  68   2              now = get_ms();
+  69   2      
+  70   2              // Detect button state change
+  71   2              if(currentState != lastRawState)
+  72   2              {
+  73   3                  debounceTime = now;
+  74   3                  lastRawState = currentState;
+  75   3              }
+  76   2      
+  77   2              // Debouncing - 30 ms
+  78   2              if((unsigned int)(now - debounceTime) >= 30)
+  79   2              {
+  80   3                  if(currentState != buttonState)
+  81   3                  {
+  82   4                      buttonState = currentState;
+  83   4      
+  84   4                      // BUTTON PRESSED
+  85   4                      if(buttonState == 0)
+  86   4                      {
+  87   5                          pressStart = now;
+  88   5                      }
+  89   4      
+  90   4                      // BUTTON RELEASED
+  91   4                      else
+  92   4                      {
+  93   5                          duration = now - pressStart;
+  94   5      
+  95   5                          // SHORT PRESS
+  96   5                          if(duration < 1000)
+  97   5                          {
+  98   6                              if(blinkMode == 1)
+  99   6                              {
+ 100   7                                  // Stop blinking
+ 101   7                                  blinkMode = 0;
+ 102   7                                  LED = 0;
+ 103   7                              }
+ 104   6                              else
+ 105   6                              {
+ 106   7                                  // Toggle LED
+ 107   7                                  LED = !LED;
+ 108   7                              }
+ 109   6                          }
+ 110   5      
+ 111   5                          // LONG PRESS
+ 112   5                          else
+ 113   5                          {
+ 114   6                              // Enter blinking mode
+ 115   6                              blinkMode = 1;
+ 116   6      
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:26:56 PAGE 3   
+
+ 117   6                              LED = 1;
+ 118   6      
+ 119   6                              lastBlink = now;
+ 120   6                          }
+ 121   5                      }
+ 122   4                  }
+ 123   3              }
+ 124   2      
+ 125   2              // Continuous LED blinking
+ 126   2              if(blinkMode == 1)
+ 127   2              {
+ 128   3                  if((unsigned int)(now - lastBlink) >= 250)
+ 129   3                  {
+ 130   4                      LED = !LED;
+ 131   4      
+ 132   4                      lastBlink = now;
+ 133   4                  }
+ 134   3              }
+ 135   2          }
+ 136   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    189    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     13    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

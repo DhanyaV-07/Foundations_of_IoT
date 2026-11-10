@@ -1,0 +1,227 @@
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                    11/11/2026  01:51:50  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.4.0, INVOKED BY:
+C:\C51\C51\BIN\BL51.EXE .\Objects\STARTUP.obj, .\Objects\main.obj TO .\Objects\TASK5C PRINT (.\Listings\TASK5C.m51) RAMS
+>> IZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\STARTUP.obj (?C_STARTUP)
+  .\Objects\main.obj (MAIN)
+  C:\C51\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\TASK5C (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     002BH     UNIT         ?DT?MAIN
+            DATA    0033H     0002H     UNIT         _DATA_GROUP_
+            IDATA   0035H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+                    000EH     07F2H                  *** GAP ***
+            CODE    0800H     008CH     UNIT         ?C_C51STARTUP
+            CODE    088CH     006BH     UNIT         ?PR?KEYPAD_SCAN?MAIN
+            CODE    08F7H     0039H     UNIT         ?C_INITSEG
+            CODE    0930H     001EH     UNIT         ?PR?TIMER0_ISR?MAIN
+            CODE    094EH     001CH     UNIT         ?PR?MAIN?MAIN
+            CODE    096AH     001BH     UNIT         ?PR?_SET_SPEED?MAIN
+            CODE    0985H     0014H     UNIT         ?PR?STEP_MOTOR?MAIN
+            CODE    0999H     0010H     UNIT         ?PR?TIMER0_INIT?MAIN
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\TASK5C (?C_STARTUP)
+
+
+SEGMENT                          DATA_GROUP 
+  +--> CALLED SEGMENT          START    LENGTH
+----------------------------------------------
+?C_C51STARTUP                  -----    -----
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN                  0033H    0002H
+  +--> ?PR?TIMER0_INIT?MAIN
+  +--> ?PR?KEYPAD_SCAN?MAIN
+  +--> ?PR?_SET_SPEED?MAIN
+
+*** NEW ROOT ***************************************************
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  11/11/2026  01:51:50  PAGE 2
+
+
+
+?PR?TIMER0_ISR?MAIN            -----    -----
+  +--> ?PR?STEP_MOTOR?MAIN
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\TASK5C (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:0800H         SEGMENT       ?C_C51STARTUP
+  I:0035H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0803H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:0800H         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:0800H         LINE#         133
+  C:0802H         LINE#         134
+  C:0803H         LINE#         135
+  C:0804H         LINE#         136
+  C:0806H         LINE#         185
+  C:0809H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  B:00A8H.7       PUBLIC        EA
+  C:088CH         PUBLIC        keypad_scan
+  D:0030H         PUBLIC        step_interval
+  C:0930H         PUBLIC        timer0_ISR
+  C:094EH         PUBLIC        main
+  D:0031H         PUBLIC        coil
+  D:0032H         PUBLIC        timer_count
+  D:0089H         PUBLIC        TMOD
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  11/11/2026  01:51:50  PAGE 3
+
+
+  C:096AH         PUBLIC        _set_speed
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  C:0985H         PUBLIC        step_motor
+  B:0088H.4       PUBLIC        TR0
+  C:0999H         PUBLIC        timer0_init
+  -------         PROC          KEYPAD_SCAN
+  -------         DO            
+  D:0008H         SYMBOL        keypad
+  D:0028H         SYMBOL        rowPin
+  D:002CH         SYMBOL        colPin
+  D:0004H         SYMBOL        row
+  D:0002H         SYMBOL        col
+  -------         ENDDO         
+  C:088CH         LINE#         7
+  C:088CH         LINE#         8
+  C:088CH         LINE#         23
+  C:088FH         LINE#         24
+  C:088FH         LINE#         26
+  C:0892H         LINE#         29
+  C:08A5H         LINE#         32
+  C:08A8H         LINE#         33
+  C:08A8H         LINE#         34
+  C:08C9H         LINE#         35
+  C:08C9H         LINE#         36
+  C:08DCH         LINE#         37
+  C:08DCH         LINE#         38
+  C:08E7H         LINE#         39
+  C:08F2H         LINE#         41
+  C:08F6H         LINE#         42
+  -------         ENDPROC       KEYPAD_SCAN
+  -------         PROC          STEP_MOTOR
+  C:0985H         LINE#         44
+  C:0985H         LINE#         45
+  C:0985H         LINE#         46
+  C:098AH         LINE#         47
+  C:098AH         LINE#         48
+  C:098DH         LINE#         49
+  C:098FH         LINE#         50
+  C:0995H         LINE#         51
+  C:0995H         LINE#         53
+  C:0998H         LINE#         54
+  -------         ENDPROC       STEP_MOTOR
+  -------         PROC          _SET_SPEED
+  D:0006H         SYMBOL        key
+  C:096AH         LINE#         56
+  C:096AH         LINE#         57
+  C:096AH         LINE#         58
+  C:0979H         LINE#         59
+  C:0979H         LINE#         60
+  C:097DH         LINE#         61
+  C:0981H         LINE#         62
+  C:0984H         LINE#         63
+  C:0984H         LINE#         64
+  -------         ENDPROC       _SET_SPEED
+  -------         PROC          TIMER0_ISR
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  11/11/2026  01:51:50  PAGE 4
+
+
+  C:0930H         LINE#         66
+  C:0934H         LINE#         68
+  C:0937H         LINE#         69
+  C:093AH         LINE#         71
+  C:093CH         LINE#         72
+  C:0943H         LINE#         73
+  C:0946H         LINE#         74
+  C:0949H         LINE#         75
+  C:0949H         LINE#         76
+  -------         ENDPROC       TIMER0_ISR
+  -------         PROC          TIMER0_INIT
+  C:0999H         LINE#         78
+  C:0999H         LINE#         79
+  C:0999H         LINE#         80
+  C:099CH         LINE#         82
+  C:099FH         LINE#         83
+  C:09A2H         LINE#         85
+  C:09A4H         LINE#         86
+  C:09A6H         LINE#         87
+  C:09A8H         LINE#         88
+  -------         ENDPROC       TIMER0_INIT
+  -------         PROC          MAIN
+  -------         DO            
+  D:0033H         SYMBOL        key
+  -------         ENDDO         
+  C:094EH         LINE#         90
+  C:094EH         LINE#         92
+  C:0951H         LINE#         93
+  C:0954H         LINE#         94
+  C:0954H         LINE#         95
+  C:095BH         LINE#         96
+  C:0965H         LINE#         97
+  C:0968H         LINE#         98
+  C:0968H         LINE#         99
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 012EH BYTE (14%) *
+******************************************************************************
+
+Program Size: data=54.0 xdata=0 code=431
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

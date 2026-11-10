@@ -1,0 +1,358 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:31:19 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\C51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst
+                    -) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          
+   2          #include <reg52.h>
+   3          
+   4          // LED connections
+   5          sbit LED1 = P1^0;
+   6          sbit LED2 = P1^1;
+   7          sbit LED3 = P1^2;
+   8          sbit LED4 = P1^3;
+   9          
+  10          // Push button connected to INT0
+  11          sbit BUTTON = P3^2;
+  12          
+  13          // Software time counter
+  14          volatile unsigned int ms_ticks = 0;
+  15          
+  16          // Operating mode
+  17          unsigned char mode = 0;
+  18          
+  19          // Pattern counter
+  20          unsigned char step = 0;
+  21          
+  22          // Timing variables
+  23          unsigned int lastPattern = 0;
+  24          
+  25          // Button interrupt and debounce variables
+  26          volatile unsigned char buttonEvent = 0;
+  27          
+  28          unsigned char pendingPress = 0;
+  29          unsigned char buttonLocked = 0;
+  30          unsigned char releaseTiming = 0;
+  31          
+  32          unsigned int pressCheckTime = 0;
+  33          unsigned int releaseStart = 0;
+  34          
+  35          #define DEBOUNCE_TIME 30
+  36          #define PATTERN_DELAY 250
+  37          
+  38          
+  39          // --------------------------------
+  40          // TIMER 0 INTERRUPT - 1 ms
+  41          // --------------------------------
+  42          
+  43          void Timer0_ISR(void) interrupt 1
+  44          {
+  45   1          TH0 = 0xFC;
+  46   1          TL0 = 0x66;
+  47   1      
+  48   1          ms_ticks++;
+  49   1      }
+  50          
+  51          
+  52          // --------------------------------
+  53          // EXTERNAL INTERRUPT 0
+  54          // --------------------------------
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:31:19 PAGE 2   
+
+  55          
+  56          void INT0_ISR(void) interrupt 0
+  57          {
+  58   1          EX0 = 0;          // Disable INT0 temporarily
+  59   1          buttonEvent = 1; // Inform main program
+  60   1      }
+  61          
+  62          
+  63          // --------------------------------
+  64          // GET CURRENT TIME
+  65          // --------------------------------
+  66          
+  67          unsigned int get_ms(void)
+  68          {
+  69   1          unsigned int t;
+  70   1      
+  71   1          ET0 = 0;
+  72   1      
+  73   1          t = ms_ticks;
+  74   1      
+  75   1          ET0 = 1;
+  76   1      
+  77   1          return t;
+  78   1      }
+  79          
+  80          
+  81          // --------------------------------
+  82          // TIMER 0 INITIALIZATION
+  83          // --------------------------------
+  84          
+  85          void Timer0_Init(void)
+  86          {
+  87   1          TMOD = (TMOD & 0xF0) | 0x01;
+  88   1      
+  89   1          TH0 = 0xFC;
+  90   1          TL0 = 0x66;
+  91   1      
+  92   1          ET0 = 1;
+  93   1      
+  94   1          TR0 = 1;
+  95   1      }
+  96          
+  97          
+  98          // --------------------------------
+  99          // EXTERNAL INTERRUPT INITIALIZATION
+ 100          // --------------------------------
+ 101          
+ 102          void INT0_Init(void)
+ 103          {
+ 104   1          BUTTON = 1;
+ 105   1      
+ 106   1          IT0 = 1;    // Falling edge triggered
+ 107   1      
+ 108   1          IE0 = 0;
+ 109   1      
+ 110   1          EX0 = 1;
+ 111   1      
+ 112   1          EA = 1;
+ 113   1      }
+ 114          
+ 115          
+ 116          // --------------------------------
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:31:19 PAGE 3   
+
+ 117          // DISPLAY LED PATTERN
+ 118          // --------------------------------
+ 119          
+ 120          void LED_Display(unsigned char value)
+ 121          {
+ 122   1          P1 = (P1 & 0xF0) | (value & 0x0F);
+ 123   1      }
+ 124          
+ 125          
+ 126          // --------------------------------
+ 127          // MAIN PROGRAM
+ 128          // --------------------------------
+ 129          
+ 130          void main(void)
+ 131          {
+ 132   1          unsigned int now;
+ 133   1      
+ 134   1          // Initially all LEDs OFF
+ 135   1          P1 = 0xF0;
+ 136   1      
+ 137   1          BUTTON = 1;
+ 138   1      
+ 139   1          Timer0_Init();
+ 140   1      
+ 141   1          INT0_Init();
+ 142   1      
+ 143   1          while(1)
+ 144   1          {
+ 145   2              now = get_ms();
+ 146   2      
+ 147   2      
+ 148   2              // ----------------------------
+ 149   2              // BUTTON PRESS DETECTION
+ 150   2              // ----------------------------
+ 151   2      
+ 152   2              if(buttonEvent == 1)
+ 153   2              {
+ 154   3                  buttonEvent = 0;
+ 155   3      
+ 156   3                  pendingPress = 1;
+ 157   3      
+ 158   3                  buttonLocked = 1;
+ 159   3      
+ 160   3                  releaseTiming = 0;
+ 161   3      
+ 162   3                  pressCheckTime = now;
+ 163   3              }
+ 164   2      
+ 165   2      
+ 166   2              // ----------------------------
+ 167   2              // DEBOUNCE BUTTON PRESS
+ 168   2              // ----------------------------
+ 169   2      
+ 170   2              if(pendingPress == 1)
+ 171   2              {
+ 172   3                  if((unsigned int)(now - pressCheckTime) >= DEBOUNCE_TIME)
+ 173   3                  {
+ 174   4                      pendingPress = 0;
+ 175   4      
+ 176   4                      // Confirm button is still pressed
+ 177   4                      if(BUTTON == 0)
+ 178   4                      {
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:31:19 PAGE 4   
+
+ 179   5                          // Move to next mode
+ 180   5                          mode++;
+ 181   5      
+ 182   5                          if(mode > 4)
+ 183   5                          {
+ 184   6                              mode = 1;
+ 185   6                          }
+ 186   5      
+ 187   5                          step = 0;
+ 188   5      
+ 189   5                          lastPattern = now;
+ 190   5      
+ 191   5                          // Enter Mode 1
+ 192   5                          if(mode == 1)
+ 193   5                          {
+ 194   6                              LED_Display(0x01);
+ 195   6                          }
+ 196   5      
+ 197   5                          // Enter Mode 2
+ 198   5                          else if(mode == 2)
+ 199   5                          {
+ 200   6                              LED_Display(0x00);
+ 201   6                          }
+ 202   5      
+ 203   5                          // Enter Mode 3
+ 204   5                          else if(mode == 3)
+ 205   5                          {
+ 206   6                              LED_Display(0x0A);
+ 207   6                          }
+ 208   5      
+ 209   5                          // Enter Mode 4
+ 210   5                          else if(mode == 4)
+ 211   5                          {
+ 212   6                              LED_Display(0x0F);
+ 213   6                          }
+ 214   5                      }
+ 215   4                  }
+ 216   3              }
+ 217   2      
+ 218   2      
+ 219   2              // ----------------------------
+ 220   2              // BUTTON RELEASE DETECTION
+ 221   2              // ----------------------------
+ 222   2      
+ 223   2              if(buttonLocked == 1)
+ 224   2              {
+ 225   3                  if(BUTTON == 1)
+ 226   3                  {
+ 227   4                      if(releaseTiming == 0)
+ 228   4                      {
+ 229   5                          releaseTiming = 1;
+ 230   5      
+ 231   5                          releaseStart = now;
+ 232   5                      }
+ 233   4      
+ 234   4                      else if((unsigned int)(now - releaseStart) >= DEBOUNCE_TIME)
+ 235   4                      {
+ 236   5                          buttonLocked = 0;
+ 237   5      
+ 238   5                          releaseTiming = 0;
+ 239   5      
+ 240   5                          // Enable next button interrupt
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:31:19 PAGE 5   
+
+ 241   5                          IE0 = 0;
+ 242   5      
+ 243   5                          EX0 = 1;
+ 244   5                      }
+ 245   4                  }
+ 246   3                  else
+ 247   3                  {
+ 248   4                      releaseTiming = 0;
+ 249   4                  }
+ 250   3              }
+ 251   2      
+ 252   2      
+ 253   2              // ----------------------------
+ 254   2              // TIMER-BASED LED PATTERNS
+ 255   2              // ----------------------------
+ 256   2      
+ 257   2              if(mode != 0)
+ 258   2              {
+ 259   3                  if((unsigned int)(now - lastPattern) >= PATTERN_DELAY)
+ 260   3                  {
+ 261   4                      lastPattern = now;
+ 262   4      
+ 263   4                      // MODE 1 - RUNNING LED
+ 264   4                      if(mode == 1)
+ 265   4                      {
+ 266   5                          step++;
+ 267   5      
+ 268   5                          if(step >= 4)
+ 269   5                          {
+ 270   6                              step = 0;
+ 271   6                          }
+ 272   5      
+ 273   5                          LED_Display(1 << step);
+ 274   5                      }
+ 275   4      
+ 276   4      
+ 277   4                      // MODE 2 - BINARY COUNTER
+ 278   4                      else if(mode == 2)
+ 279   4                      {
+ 280   5                          step++;
+ 281   5      
+ 282   5                          if(step >= 16)
+ 283   5                          {
+ 284   6                              step = 0;
+ 285   6                          }
+ 286   5      
+ 287   5                          LED_Display(step);
+ 288   5                      }
+ 289   4      
+ 290   4      
+ 291   4                      // MODE 3 - ALTERNATING PATTERN
+ 292   4                      else if(mode == 3)
+ 293   4                      {
+ 294   5                          step = !step;
+ 295   5      
+ 296   5                          if(step == 0)
+ 297   5                          {
+ 298   6                              LED_Display(0x0A);
+ 299   6                          }
+ 300   5                          else
+ 301   5                          {
+ 302   6                              LED_Display(0x05);
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:31:19 PAGE 6   
+
+ 303   6                          }
+ 304   5                      }
+ 305   4      
+ 306   4      
+ 307   4                      // MODE 4 - ALL LED FLASH
+ 308   4                      else if(mode == 4)
+ 309   4                      {
+ 310   5                          step = !step;
+ 311   5      
+ 312   5                          if(step == 0)
+ 313   5                          {
+ 314   6                              LED_Display(0x0F);
+ 315   6                          }
+ 316   5                          else
+ 317   5                          {
+ 318   6                              LED_Display(0x00);
+ 319   6                          }
+ 320   5                      }
+ 321   4                  }
+ 322   3              }
+ 323   2          }
+ 324   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    411    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

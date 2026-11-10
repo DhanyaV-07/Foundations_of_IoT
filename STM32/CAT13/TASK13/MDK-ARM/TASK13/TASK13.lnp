@@ -1,0 +1,27 @@
+--cpu=Cortex-M4.fp.sp
+"task13\startup_stm32f401xe.o"
+"task13\bme280.o"
+"task13\main.o"
+"task13\stm32f4xx_it.o"
+"task13\stm32f4xx_hal_msp.o"
+"task13\stm32f4xx_hal_i2c.o"
+"task13\stm32f4xx_hal_i2c_ex.o"
+"task13\stm32f4xx_hal_rcc.o"
+"task13\stm32f4xx_hal_rcc_ex.o"
+"task13\stm32f4xx_hal_flash.o"
+"task13\stm32f4xx_hal_flash_ex.o"
+"task13\stm32f4xx_hal_flash_ramfunc.o"
+"task13\stm32f4xx_hal_gpio.o"
+"task13\stm32f4xx_hal_dma_ex.o"
+"task13\stm32f4xx_hal_dma.o"
+"task13\stm32f4xx_hal_pwr.o"
+"task13\stm32f4xx_hal_pwr_ex.o"
+"task13\stm32f4xx_hal_cortex.o"
+"task13\stm32f4xx_hal.o"
+"task13\stm32f4xx_hal_exti.o"
+"task13\stm32f4xx_hal_uart.o"
+"task13\system_stm32f4xx.o"
+--strict --scatter "TASK13\TASK13.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "TASK13.map" -o TASK13\TASK13.axf

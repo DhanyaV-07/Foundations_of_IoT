@@ -1,0 +1,126 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 01:51:50 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\C51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst
+                    -) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          
+   3          unsigned char timer_count = 0; 
+   4          unsigned char step_interval = 1;
+   5          unsigned char coil = 0x08; // Initial coil state for stepper motor
+   6          
+   7          int keypad_scan(void)
+   8          {
+   9   1          static const int keypad[4][4] =
+  10   1          {
+  11   1              {1, 2, 3, -1},
+  12   1              {-1, -1, -1, -1},
+  13   1              {-1, -1, -1, -1},
+  14   1              {-1, -1, -1, -1}
+  15   1          };
+  16   1      
+  17   1          static const unsigned char rowPin[4] = {7, 6, 5, 4};
+  18   1          static const unsigned char colPin[4] = {3, 2, 1, 0};
+  19   1      
+  20   1          int row, col;
+  21   1      
+  22   1      
+  23   1          for(row = 0; row < 4; row++)
+  24   1          {
+  25   2              // Set all rows HIGH
+  26   2              P2 |= 0xF0;
+  27   2      
+  28   2              // Set current row LOW
+  29   2              P2 &= ~(1 << rowPin[row]);
+  30   2      
+  31   2              // Check columns
+  32   2              for(col = 0; col < 4; col++)
+  33   2              {
+  34   3                  if((P2 & (1 << colPin[col])) == 0)
+  35   3                  {
+  36   4                      return keypad[row][col];
+  37   4                  }
+  38   3              }
+  39   2          }
+  40   1      
+  41   1          return -1;
+  42   1      }
+  43          
+  44          void step_motor(void)
+  45          {
+  46   1          if (coil == 0x01)
+  47   1          {
+  48   2              coil = 0x08;
+  49   2          } else {
+  50   2              coil = coil >> 1;
+  51   2          }
+  52   1      
+  53   1          P1 = coil;
+  54   1      }
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 01:51:50 PAGE 2   
+
+  55          
+  56          void set_speed(int key)
+  57          {
+  58   1          switch(key)
+  59   1          {
+  60   2              case 1: step_interval = 1; break;
+  61   2              case 2: step_interval = 5; break;
+  62   2              case 3: step_interval = 10; break;
+  63   2          }
+  64   1      }
+  65          
+  66          void timer0_ISR(void) interrupt 1
+  67          {
+  68   1          TH0 = 0xDC;
+  69   1          TL0 = 0x00;
+  70   1      
+  71   1          timer_count++;
+  72   1          if(timer_count >= step_interval) {
+  73   2              timer_count = 0;
+  74   2              step_motor(); // Call the step motor function
+  75   2          }
+  76   1      }
+  77          
+  78          void timer0_init(void)
+  79          {
+  80   1          TMOD = 0x01;      // Timer 0, Mode 1
+  81   1      
+  82   1          TH0 = 0xDC;
+  83   1          TL0 = 0x00;
+  84   1      
+  85   1          ET0 = 1;          // Enable Timer 0 interrupt
+  86   1          EA  = 1;           // Enable global interrupts
+  87   1          TR0 = 1;           // Start Timer 0
+  88   1      }
+  89          
+  90          void main() {
+  91   1      
+  92   1          timer0_init();
+  93   1          P1 = coil; // Initialize P1 with the initial coil state
+  94   1          while(1) {
+  95   2              int key = keypad_scan();
+  96   2              if(key != -1) {
+  97   3                  set_speed(key);
+  98   3              }
+  99   2          }
+ 100   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    228    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     43       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

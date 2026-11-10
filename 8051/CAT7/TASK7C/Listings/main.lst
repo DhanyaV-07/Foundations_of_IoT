@@ -1,0 +1,264 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:16:37 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\C51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst
+                    -) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          // Include the common LCD driver functions here
+   2          #include <reg52.h>
+   3          
+   4          #define LCD_PORT P2
+   5          
+   6          sbit RS = P2^0;
+   7          sbit EN = P2^1;
+   8          
+   9          // Delay function
+  10          void delay(unsigned int t)
+  11          {
+  12   1          unsigned int i, j;
+  13   1      
+  14   1          for(i = 0; i < t; i++)
+  15   1              for(j = 0; j < 120; j++);
+  16   1      }
+  17          
+  18          // Send 4 bits to LCD
+  19          void lcd_nibble(unsigned char value)
+  20          {
+  21   1          LCD_PORT = (LCD_PORT & 0x0F) | (value & 0xF0);
+  22   1      
+  23   1          EN = 1;
+  24   1          delay(1);
+  25   1          EN = 0;
+  26   1      }
+  27          
+  28          // Send LCD command
+  29          void lcd_cmd(unsigned char cmd)
+  30          {
+  31   1          RS = 0;
+  32   1      
+  33   1          lcd_nibble(cmd);
+  34   1          lcd_nibble(cmd << 4);
+  35   1      
+  36   1          delay(2);
+  37   1      }
+  38          
+  39          // Send character
+  40          void lcd_data(unsigned char dat)
+  41          {
+  42   1          RS = 1;
+  43   1      
+  44   1          lcd_nibble(dat);
+  45   1          lcd_nibble(dat << 4);
+  46   1      
+  47   1          delay(2);
+  48   1      }
+  49          
+  50          // Initialize LCD in 4-bit mode
+  51          void lcd_init(void)
+  52          {
+  53   1          delay(20);
+  54   1      
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:16:37 PAGE 2   
+
+  55   1          RS = 0;
+  56   1          lcd_nibble(0x30);
+  57   1          delay(5);
+  58   1      
+  59   1          lcd_nibble(0x30);
+  60   1          delay(1);
+  61   1      
+  62   1          lcd_nibble(0x30);
+  63   1          delay(1);
+  64   1      
+  65   1          lcd_nibble(0x20);
+  66   1      
+  67   1          lcd_cmd(0x28);  // 4-bit, 2-line mode
+  68   1          lcd_cmd(0x0C);  // Display ON, cursor OFF
+  69   1          lcd_cmd(0x06);  // Increment cursor
+  70   1          lcd_cmd(0x01);  // Clear display
+  71   1      
+  72   1          delay(5);
+  73   1      }
+  74          
+  75          // Set cursor position
+  76          void lcd_goto(unsigned char row, unsigned char column)
+  77          {
+  78   1          if(row == 0)
+  79   1              lcd_cmd(0x80 + column);
+  80   1          else
+  81   1              lcd_cmd(0xC0 + column);
+  82   1      }
+  83          
+  84          // Display string
+  85          void lcd_puts(char *str)
+  86          {
+  87   1          while(*str)
+  88   1          {
+  89   2              lcd_data(*str);
+  90   2              str++;
+  91   2          }
+  92   1      }
+  93          
+  94          // Display integer
+  95          void lcd_print_number(unsigned int num)
+  96          {
+  97   1          unsigned char digits[5];
+  98   1          unsigned char i = 0;
+  99   1      
+ 100   1          if(num == 0)
+ 101   1          {
+ 102   2              lcd_data('0');
+ 103   2              return;
+ 104   2          }
+ 105   1      
+ 106   1          while(num > 0)
+ 107   1          {
+ 108   2              digits[i] = (num % 10) + '0';
+ 109   2              num = num / 10;
+ 110   2              i++;
+ 111   2          }
+ 112   1      
+ 113   1          while(i > 0)
+ 114   1          {
+ 115   2              i--;
+ 116   2              lcd_data(digits[i]);
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:16:37 PAGE 3   
+
+ 117   2          }
+ 118   1      }
+ 119          
+ 120          // Clear LCD
+ 121          void lcd_clear(void)
+ 122          {
+ 123   1          lcd_cmd(0x01);
+ 124   1          delay(5);
+ 125   1      }
+ 126          
+ 127          
+ 128          
+ 129          
+ 130          #include <reg52.h>
+ 131          
+ 132          // Keypad connected to Port 1
+ 133          // Rows: P1.0 to P1.3
+ 134          // Columns: P1.4 to P1.7
+ 135          
+ 136          // Scan keypad
+ 137          char keypad_getkey(void)
+ 138          {
+ 139   1          unsigned char row, col;
+ 140   1          unsigned char value;
+ 141   1      
+ 142   1          char keys[4][4] =
+ 143   1          {
+ 144   1              {'1','2','3','A'},
+ 145   1              {'4','5','6','B'},
+ 146   1              {'7','8','9','C'},
+ 147   1              {'*','0','#','D'}
+ 148   1          };
+ 149   1      
+ 150   1          for(row = 0; row < 4; row++)
+ 151   1          {
+ 152   2              P1 = 0xFF;
+ 153   2      
+ 154   2              // Make one row LOW
+ 155   2              P1 = 0xF0 | (0x0F & ~(1 << row));
+ 156   2      
+ 157   2              value = P1;
+ 158   2      
+ 159   2              for(col = 0; col < 4; col++)
+ 160   2              {
+ 161   3                  if((value & (0x10 << col)) == 0)
+ 162   3                  {
+ 163   4                      return keys[row][col];
+ 164   4                  }
+ 165   3              }
+ 166   2          }
+ 167   1      
+ 168   1          return 0;
+ 169   1      }
+ 170          
+ 171          void main(void)
+ 172          {
+ 173   1          unsigned char row = 0;
+ 174   1          unsigned char col = 0;
+ 175   1      
+ 176   1          char key;
+ 177   1      
+ 178   1          lcd_init();
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:16:37 PAGE 4   
+
+ 179   1      
+ 180   1          // Initial character position
+ 181   1          lcd_goto(row, col);
+ 182   1          lcd_data('X');
+ 183   1      
+ 184   1          P1 = 0xFF;
+ 185   1      
+ 186   1          while(1)
+ 187   1          {
+ 188   2              key = keypad_getkey();
+ 189   2      
+ 190   2              if(key != 0)
+ 191   2              {
+ 192   3                  delay(20);  // Debouncing
+ 193   3      
+ 194   3                  if(keypad_getkey() == key)
+ 195   3                  {
+ 196   4                      // Erase old character
+ 197   4                      lcd_goto(row, col);
+ 198   4                      lcd_data(' ');
+ 199   4      
+ 200   4                      // Move according to key
+ 201   4                      if(key == '2' && row > 0)
+ 202   4                      {
+ 203   5                          row--;
+ 204   5                      }
+ 205   4      
+ 206   4                      else if(key == '8' && row < 1)
+ 207   4                      {
+ 208   5                          row++;
+ 209   5                      }
+ 210   4      
+ 211   4                      else if(key == '4' && col > 0)
+ 212   4                      {
+ 213   5                          col--;
+ 214   5                      }
+ 215   4      
+ 216   4                      else if(key == '6' && col < 15)
+ 217   4                      {
+ 218   5                          col++;
+ 219   5                      }
+ 220   4      
+ 221   4                      // Display at new position
+ 222   4                      lcd_goto(row, col);
+ 223   4                      lcd_data('X');
+ 224   4      
+ 225   4                      // Wait until key is released
+ 226   4                      while(keypad_getkey() != 0);
+ 227   4      
+ 228   4                      delay(20);
+ 229   4                  }
+ 230   3              }
+ 231   2          }
+ 232   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    544    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      31
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 02:16:37 PAGE 5   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

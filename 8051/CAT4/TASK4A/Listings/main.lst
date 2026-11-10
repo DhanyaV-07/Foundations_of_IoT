@@ -1,0 +1,283 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 01:29:56 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\C51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst
+                    -) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <reg52.h> 
+   2           
+   3          sbit COL1 = P2^7; 
+   4          sbit COL2 = P2^6; 
+   5          sbit COL3 = P2^5;
+   6          sbit COL4 = P2^4;
+   7          
+   8          sbit LED1 = P1^1;
+   9          sbit LED2 = P1^2;
+  10          sbit LED3 = P1^3;
+  11          sbit LED4 = P1^4;
+  12          
+  13          
+  14          //Remember current mode 
+  15          unsigned char mode = 0;
+  16          unsigned char value = 0;
+  17          
+  18          void delay() {
+  19   1          int i, j;
+  20   1          for(i = 0; i < 100; i++) {
+  21   2              for(j = 0; j < 500; j++) {
+  22   3                  
+  23   3              }
+  24   2          }
+  25   1      }
+  26          
+  27          void led_control(unsigned char key) {
+  28   1          P1 = (1 << key);
+  29   1      }
+  30          
+  31          void running_led() {
+  32   1              P1 = 0x02; 
+  33   1              delay();
+  34   1              P1 = 0x04;
+  35   1              delay();
+  36   1              P1 = 0x08;
+  37   1              delay();
+  38   1              P1 = 0x10;
+  39   1              delay();
+  40   1      }
+  41          
+  42          void binary_counter() {
+  43   1          unsigned char count;
+  44   1      
+  45   1          for(count = 0; count < 16; count++)
+  46   1          {
+  47   2              LED1 = count & 0x01;
+  48   2              LED2 = (count >> 1) & 0x01;
+  49   2              LED3 = (count >> 2) & 0x01;
+  50   2              LED4 = (count >> 3) & 0x01;
+  51   2      
+  52   2              delay();
+  53   2          }
+  54   1      }
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 01:29:56 PAGE 2   
+
+  55          
+  56          void alternate_led() {
+  57   1              P1 = 0x0A;   
+  58   1              delay();
+  59   1              P1 = 0x14;   
+  60   1              delay();
+  61   1      }
+  62          
+  63          void blink_all()
+  64          {
+  65   1          static bit state = 0;
+  66   1      
+  67   1          if(state == 0)
+  68   1          {
+  69   2              P1 = 0x1E;   
+  70   2              state = 1;
+  71   2          }
+  72   1          else
+  73   1          {
+  74   2              P1 = 0x00;   
+  75   2              state = 0;
+  76   2          }
+  77   1      
+  78   1          delay();
+  79   1      }
+  80          
+  81          
+  82          void display_digit(unsigned char value) {
+  83   1          if(value == 0) {
+  84   2              P0 = 0x3F;
+  85   2          } else if(value == 1) {
+  86   2              P0 = 0x06;
+  87   2          } else if(value == 2) {
+  88   2              P0 = 0x5B;
+  89   2          } else if(value == 3) {
+  90   2              P0 = 0x4F;
+  91   2          } else if(value == 4) {
+  92   2              P0 = 0x66;
+  93   2          } else if(value == 5) {
+  94   2              P0 = 0x6D;
+  95   2          } else if(value == 6) {
+  96   2              P0 = 0x7D;
+  97   2          } else if(value == 7) {
+  98   2              P0 = 0x07;
+  99   2          } else if(value == 8) {
+ 100   2              P0 = 0x7F;
+ 101   2          } else if(value == 9) {
+ 102   2              P0 = 0x6F;
+ 103   2          }
+ 104   1      }
+ 105          
+ 106          void keypad_scan() {
+ 107   1          
+ 108   1          P2 = 0xF7; //P2.3
+ 109   1          if(COL1 == 0) {
+ 110   2              delay();
+ 111   2              if(COL1 == 0) {
+ 112   3                  mode = 1;
+ 113   3                  value = 1;
+ 114   3                   while(COL1 == 0);
+ 115   3              }
+ 116   2              
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 01:29:56 PAGE 3   
+
+ 117   2          } else if(COL2 == 0) {
+ 118   2              delay();
+ 119   2              if(COL2 == 0) {
+ 120   3                  mode = 4;
+ 121   3                  value = 4;
+ 122   3                   while(COL2 == 0);
+ 123   3              }
+ 124   2              
+ 125   2          } else if(COL3 == 0) {
+ 126   2              delay();
+ 127   2              if(COL3 == 0) {
+ 128   3                  mode = 7;
+ 129   3                  value = 7;
+ 130   3                  while(COL3 == 0);
+ 131   3              }
+ 132   2          } 
+ 133   1          
+ 134   1          P2 = 0xFB; //P2.2
+ 135   1          if(COL1 == 0) {
+ 136   2              delay();
+ 137   2              if(COL1 == 0) {
+ 138   3                  mode = 2;
+ 139   3                  value = 2;
+ 140   3                  while(COL1 == 0);
+ 141   3              }
+ 142   2          } else if(COL2 == 0) {
+ 143   2              delay();
+ 144   2              if(COL2 == 0) {
+ 145   3                  mode = 5;
+ 146   3                  value = 5;
+ 147   3                  while(COL2 == 0);
+ 148   3              }
+ 149   2              
+ 150   2              
+ 151   2          } else if(COL3 == 0) {
+ 152   2              delay();
+ 153   2              if(COL3 == 0) {
+ 154   3                  mode = 8;
+ 155   3                  value = 8;
+ 156   3                  while(COL3 == 0);
+ 157   3              }
+ 158   2              
+ 159   2              
+ 160   2          } else if(COL4 == 0) {
+ 161   2              delay();
+ 162   2              if(COL4 == 0) {
+ 163   3                  mode = 9;
+ 164   3                  value = 0;
+ 165   3                  while(COL4 == 0);
+ 166   3              }
+ 167   2              
+ 168   2          }
+ 169   1          
+ 170   1          P2 = 0xFD;  //P2.1
+ 171   1          if(COL1 == 0) {
+ 172   2              delay();
+ 173   2              if(COL1 == 0) {
+ 174   3                  mode = 3;
+ 175   3                  value = 3;
+ 176   3                  while(COL1 == 0); 
+ 177   3              }
+ 178   2          } else if(COL2 == 0) {
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 01:29:56 PAGE 4   
+
+ 179   2              delay();
+ 180   2              if(COL2 == 0) {
+ 181   3                  mode = 6;
+ 182   3                  value = 6;
+ 183   3                  while(COL2 == 0);
+ 184   3              }
+ 185   2              
+ 186   2          } else if(COL3 == 0) {
+ 187   2              delay();
+ 188   2              if(COL3 == 0) {
+ 189   3                  mode = 9;
+ 190   3                  value = 9;
+ 191   3                  P1 = 0x00;
+ 192   3                  while(COL3 == 0);
+ 193   3              }
+ 194   2              
+ 195   2          }
+ 196   1          
+ 197   1          display_digit(value);
+ 198   1      }
+ 199          
+ 200          void main()
+ 201          {
+ 202   1          P0 = 0x3F;
+ 203   1          P1 = 0x1E;
+ 204   1          P2 = 0xFF;
+ 205   1      
+ 206   1          while(1)
+ 207   1          {
+ 208   2              keypad_scan();
+ 209   2      
+ 210   2              switch(mode)
+ 211   2              {
+ 212   3                  case 1:
+ 213   3                      led_control(1);
+ 214   3                      break;
+ 215   3      
+ 216   3                  case 2:
+ 217   3                      led_control(2);
+ 218   3                      break;
+ 219   3      
+ 220   3                  case 3:
+ 221   3                      led_control(3);
+ 222   3                      break;
+ 223   3      
+ 224   3                  case 4:
+ 225   3                      led_control(4);
+ 226   3                      break;
+ 227   3      
+ 228   3                  case 5:
+ 229   3                      running_led();
+ 230   3                      break;
+ 231   3      
+ 232   3                  case 6:
+ 233   3                      while(mode == 6) {
+ 234   4                          alternate_led();
+ 235   4                          keypad_scan();
+ 236   4                      }
+ 237   3                      break;
+ 238   3      
+ 239   3                  case 7:
+ 240   3                      binary_counter();
+C51 COMPILER V9.60.7.0   MAIN                                                              11/11/2026 01:29:56 PAGE 5   
+
+ 241   3                      break;
+ 242   3      
+ 243   3                  case 8:
+ 244   3                      blink_all();
+ 245   3                      break;
+ 246   3      
+ 247   3                  default:
+ 248   3                      break;
+ 249   3              }
+ 250   2          }
+ 251   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    520    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
