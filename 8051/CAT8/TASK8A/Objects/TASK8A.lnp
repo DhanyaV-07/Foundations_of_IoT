@@ -1,4 +1,0 @@
-".\Objects\STARTUP.obj",
-".\Objects\main.obj" 
-TO ".\Objects\TASK8A" 
-PRINT(".\Listings\TASK8A.m51") RAMSIZE(256) 
