@@ -1,7 +1,7 @@
 # Continuous Lab Evaluation-12C
 
 **EXP:** Continuous Lab Evaluation-12C  
-**DATE:** 26/10/2026  
+**DATE:** 12/10/2026  
 **NAME OF EXP:** STM32F401RE Cortex-M4: GPIO and User Input Programming — Short-Press and Long-Press Detection  
 **HARDWARE SETUP / PLATFORM:** STM32CubeMX + Keil MDK-ARM + STMicroelectronics NUCLEO-F401RE (STM32F401RET6 Cortex-M4, 84 MHz HSE Bypass Clock) + On-board ST-LINK/V2-1 + Green User LED (`LD2` on `PA5`) + Blue User Push Button (`B1` on `PC13`, Active-LOW with external `4.7 kΩ` pull-up)  
 **TASK NO:** 12C  

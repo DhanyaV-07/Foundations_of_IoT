@@ -1,7 +1,7 @@
 # Continuous Lab Evaluation-12A
 
 **EXP:** Continuous Lab Evaluation-12A  
-**DATE:** 26/10/2026  
+**DATE:** 12/10/2026  
 **NAME OF EXP:** STM32F401RE Cortex-M4: GPIO and User Input Programming — On-board User LED (LD2) Bring-Up  
 **HARDWARE SETUP / PLATFORM:** STM32CubeMX + Keil MDK-ARM + STMicroelectronics NUCLEO-F401RE (STM32F401RET6 Cortex-M4, 84 MHz HSE Bypass Clock) + On-board ST-LINK/V2-1 + Green User LED (`LD2` on `PA5`)  
 **TASK NO:** 12A  
