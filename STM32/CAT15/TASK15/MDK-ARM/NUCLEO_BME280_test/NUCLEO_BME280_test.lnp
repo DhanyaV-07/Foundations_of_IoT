@@ -1,0 +1,27 @@
+--cpu=Cortex-M4.fp.sp
+"nucleo_bme280_test\startup_stm32f401xe.o"
+"nucleo_bme280_test\bme280.o"
+"nucleo_bme280_test\main.o"
+"nucleo_bme280_test\stm32f4xx_it.o"
+"nucleo_bme280_test\stm32f4xx_hal_msp.o"
+"nucleo_bme280_test\stm32f4xx_hal_i2c.o"
+"nucleo_bme280_test\stm32f4xx_hal_i2c_ex.o"
+"nucleo_bme280_test\stm32f4xx_hal_rcc.o"
+"nucleo_bme280_test\stm32f4xx_hal_rcc_ex.o"
+"nucleo_bme280_test\stm32f4xx_hal_flash.o"
+"nucleo_bme280_test\stm32f4xx_hal_flash_ex.o"
+"nucleo_bme280_test\stm32f4xx_hal_flash_ramfunc.o"
+"nucleo_bme280_test\stm32f4xx_hal_gpio.o"
+"nucleo_bme280_test\stm32f4xx_hal_dma_ex.o"
+"nucleo_bme280_test\stm32f4xx_hal_dma.o"
+"nucleo_bme280_test\stm32f4xx_hal_pwr.o"
+"nucleo_bme280_test\stm32f4xx_hal_pwr_ex.o"
+"nucleo_bme280_test\stm32f4xx_hal_cortex.o"
+"nucleo_bme280_test\stm32f4xx_hal.o"
+"nucleo_bme280_test\stm32f4xx_hal_exti.o"
+"nucleo_bme280_test\stm32f4xx_hal_uart.o"
+"nucleo_bme280_test\system_stm32f4xx.o"
+--strict --scatter "NUCLEO_BME280_test\NUCLEO_BME280_test.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "NUCLEO_BME280_test.map" -o NUCLEO_BME280_test\NUCLEO_BME280_test.axf

@@ -1,0 +1,22 @@
+
+# Keil build files
+Objects/
+Listings/
+*.o
+*.d
+*.axf
+*.hex
+*.bin
+*.elf
+*.map
+
+# IDE temporary files
+*.uvguix.*
+*.bak
+.DS_Store
+Thumbs.db
+
+# Sensitive configuration
+.env
+.env.*
+!.env.example
