@@ -1,7 +1,7 @@
 # Continuous Lab Evaluation-11A
 
 **EXP:** Continuous Lab Evaluation-11A  
-**DATE:** 12/10/2026  
+**DATE:** 10/10/2026  
 **NAME OF EXP:** HTTP Server - STM32–Wemos Wi-Fi Modem Using AT Commands — Configure ESP8266 as a TCP Server & Serve Static/Dynamic HTTP Responses  
 **HARDWARE SETUP / PLATFORM:** STM32CubeMX + Keil MDK-ARM + STM32F103C8T6 Blue Pill (72 MHz HSE Crystal) + Wemos D1 Mini (ESP8266 AT Firmware on `USART1`: `PA9 TX`, `PA10 RX`) + USB-to-TTL Converter (`USART3`: `PB10 TX`, `PB11 RX`) + PC Serial Terminal (PuTTY) & Web Browser (`115200-8-N-1`)  
 **TASK NO:** 11A  
