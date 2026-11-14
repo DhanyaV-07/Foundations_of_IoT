@@ -9,7 +9,7 @@
 ---
 
 ### Circuit Diagram
-![Circuit Diagram](./FINAL_CAT5B.jpg)
+![Circuit Diagram](./FINAL_CAT5B.png)
 
 ---
 
